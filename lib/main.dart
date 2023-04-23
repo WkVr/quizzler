@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:quiz_bank/quiz_bank.dart';
+import 'package:quizzler/question.dart';
 
 void main() => runApp(const Quizzler());
 
@@ -28,23 +30,24 @@ class QuizPage extends StatefulWidget {
   _QuizPageState createState() => _QuizPageState();
 }
 
+QuizBrain quizBrain = QuizBrain();
+
 class _QuizPageState extends State<QuizPage> {
   List<Widget> scoreKeeper = [];
 
-  int questionIndex = 0;
+  AskedQuestion? askedQuestion = AskedQuestion(
+      question: quizBrain.getQuestionText(),
+      answer: quizBrain.getCorrectAnswer());
 
-  List<Question> questions = [
-    Question(
-        question: 'You can lead a cow down stairs but not up stairs.',
-        answer: false),
-    Question(
-        question: 'Approximately one quarter of human bones are in the feet.',
-        answer: true),
-    Question(question: 'A slug\'s blood is green.', answer: false),
-  ];
+  void setNextQuestion() {
+    quizBrain.RandomQuestion();
+    String question = quizBrain.getQuestionText();
+    bool answer = quizBrain.getCorrectAnswer();
+    askedQuestion = AskedQuestion(question: question, answer: answer);
+  }
 
   void determineAnswer(bool answer) {
-    if (questions[questionIndex].answer == answer) {
+    if (askedQuestion!.answer == answer) {
       scoreKeeper.add(
         const Icon(
           Icons.check,
@@ -63,91 +66,88 @@ class _QuizPageState extends State<QuizPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: <Widget>[
-        Expanded(
-          flex: 5,
-          child: Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Center(
-              child: Text(
-                questions[questionIndex].question,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 25.0,
-                  color: Colors.white,
+    if (askedQuestion != null) {
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          Expanded(
+            flex: 5,
+            child: Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Center(
+                child: Text(
+                  askedQuestion!.question,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 25.0,
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.all(15.0),
-            child: TextButton(
-              style: const ButtonStyle(
-                backgroundColor: MaterialStatePropertyAll(Colors.green),
-              ),
-              child: const Text(
-                'True',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 20.0,
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(15.0),
+              child: TextButton(
+                style: const ButtonStyle(
+                  backgroundColor: MaterialStatePropertyAll(Colors.green),
                 ),
+                child: const Text(
+                  'True',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20.0,
+                  ),
+                ),
+                onPressed: () {
+                  setState(() {
+                    determineAnswer(true);
+                    setNextQuestion();
+                  });
+                },
               ),
-              onPressed: () {
-                setState(() {
-                  determineAnswer(true);
-                  questionIndex++;
-                });
-              },
             ),
           ),
-        ),
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.all(15.0),
-            child: TextButton(
-              style: const ButtonStyle(
-                backgroundColor: MaterialStatePropertyAll(Colors.red),
-              ),
-              child: const Text(
-                'False',
-                style: TextStyle(
-                  fontSize: 20.0,
-                  color: Colors.white,
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(15.0),
+              child: TextButton(
+                style: const ButtonStyle(
+                  backgroundColor: MaterialStatePropertyAll(Colors.red),
                 ),
+                child: const Text(
+                  'False',
+                  style: TextStyle(
+                    fontSize: 20.0,
+                    color: Colors.white,
+                  ),
+                ),
+                onPressed: () {
+                  setState(() {
+                    determineAnswer(false);
+                    setNextQuestion();
+                  });
+                },
               ),
-              onPressed: () {
-                setState(() {
-                  determineAnswer(false);
-                  questionIndex++;
-                });
-              },
             ),
           ),
-        ),
-        Wrap(
-          children: scoreKeeper,
-        )
-      ],
-    );
+          Wrap(
+            children: scoreKeeper,
+          )
+        ],
+      );
+    }
+
+    return const Center(
+        child: Text(
+      'No Questions left',
+      style: TextStyle(
+        color: Colors.white,
+        fontSize: 30.0,
+        fontWeight: FontWeight.bold,
+      ),
+    ));
   }
-}
-
-/*const Icon(
-Icons.check,
-color: Colors.green,
-),
-const Icon(
-Icons.close,
-color: Colors.red,
-)*/
-class Question {
-  String question;
-  bool answer;
-
-  Question({required this.question, required this.answer});
 }
