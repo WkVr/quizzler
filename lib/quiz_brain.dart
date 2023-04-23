@@ -1,11 +1,10 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:quizzler/question.dart';
+import 'package:quizzler/score.dart';
 
 class QuizBrain {
   int _questionNumber = 0;
-  List<Widget> scoreKeeper = [];
+  List<Score> scoreKeeper = [];
 
   final List<Question> _questionBank = [
     Question(
@@ -59,18 +58,31 @@ class QuizBrain {
 
   String getQuestionText() => question!.question;
 
-  void getRandomQuestion() {
-    _questionNumber = Random().nextInt(_questionBank.length);
+  void _nextQuestion() {
+    _questionNumber++;
+    question = _questionBank[_questionNumber];
+  }
+
+  bool determineEndOfQuiz() => _questionNumber == _questionBank.length;
+
+  void resetQuiz() {
+    scoreKeeper = [];
+    _questionNumber = 0;
     question = _questionBank[_questionNumber];
   }
 
   void determineAnswer(bool answer) {
     bool correctResult = question!.answer == answer;
-    scoreKeeper.add(
-      Icon(
+    scoreKeeper.add(Score(
+      icon: Icon(
         correctResult ? Icons.check : Icons.close,
         color: correctResult ? Colors.green : Colors.red,
       ),
-    );
+      correct: correctResult,
+    ));
+    _nextQuestion();
   }
+
+  String determineScore() =>
+      '${scoreKeeper.where((i) => i.correct).length}/${_questionBank.length}';
 }

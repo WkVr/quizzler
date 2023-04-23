@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:quizzler/quiz_brain.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 
 QuizBrain quizBrain = QuizBrain();
 
@@ -32,6 +33,37 @@ class QuizPage extends StatefulWidget {
 }
 
 class _QuizPageState extends State<QuizPage> {
+  void checkAnswer(bool answer) {
+    setState(() {
+      if (quizBrain.determineEndOfQuiz()) {
+        Alert(
+          context: context,
+          type: AlertType.info,
+          title: "Quiz finished",
+          desc:
+              "You have finished the quiz. Score: ${quizBrain.determineScore()}. By closing the quiz will reset.",
+          buttons: [
+            DialogButton(
+              onPressed: () {
+                Navigator.pop(context);
+                setState(() {
+                  quizBrain.resetQuiz();
+                });
+              },
+              width: 120,
+              child: const Text(
+                "Close",
+                style: TextStyle(color: Colors.white, fontSize: 20),
+              ),
+            )
+          ],
+        ).show();
+      } else {
+        quizBrain.determineAnswer(answer);
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     if (quizBrain.question != null) {
@@ -70,10 +102,7 @@ class _QuizPageState extends State<QuizPage> {
                   ),
                 ),
                 onPressed: () {
-                  setState(() {
-                    quizBrain.determineAnswer(true);
-                    quizBrain.getRandomQuestion();
-                  });
+                  checkAnswer(true);
                 },
               ),
             ),
@@ -94,15 +123,14 @@ class _QuizPageState extends State<QuizPage> {
                 ),
                 onPressed: () {
                   setState(() {
-                    quizBrain.determineAnswer(false);
-                    quizBrain.getRandomQuestion();
+                    checkAnswer(false);
                   });
                 },
               ),
             ),
           ),
           Wrap(
-            children: quizBrain.scoreKeeper,
+            children: quizBrain.scoreKeeper.map((i) => i.icon).toList(),
           )
         ],
       );
