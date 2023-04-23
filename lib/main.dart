@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:quiz_bank/quiz_bank.dart';
-import 'package:quizzler/question.dart';
+import 'package:quizzler/quiz_brain.dart';
+
+QuizBrain quizBrain = QuizBrain();
 
 void main() => runApp(const Quizzler());
 
@@ -30,43 +31,10 @@ class QuizPage extends StatefulWidget {
   _QuizPageState createState() => _QuizPageState();
 }
 
-QuizBrain quizBrain = QuizBrain();
-
 class _QuizPageState extends State<QuizPage> {
-  List<Widget> scoreKeeper = [];
-
-  AskedQuestion? askedQuestion = AskedQuestion(
-      question: quizBrain.getQuestionText(),
-      answer: quizBrain.getCorrectAnswer());
-
-  void setNextQuestion() {
-    quizBrain.RandomQuestion();
-    String question = quizBrain.getQuestionText();
-    bool answer = quizBrain.getCorrectAnswer();
-    askedQuestion = AskedQuestion(question: question, answer: answer);
-  }
-
-  void determineAnswer(bool answer) {
-    if (askedQuestion!.answer == answer) {
-      scoreKeeper.add(
-        const Icon(
-          Icons.check,
-          color: Colors.green,
-        ),
-      );
-    } else {
-      scoreKeeper.add(
-        const Icon(
-          Icons.close,
-          color: Colors.red,
-        ),
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    if (askedQuestion != null) {
+    if (quizBrain.question != null) {
       return Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -77,7 +45,7 @@ class _QuizPageState extends State<QuizPage> {
               padding: const EdgeInsets.all(10.0),
               child: Center(
                 child: Text(
-                  askedQuestion!.question,
+                  quizBrain.question!.question,
                   textAlign: TextAlign.center,
                   style: const TextStyle(
                     fontSize: 25.0,
@@ -103,8 +71,8 @@ class _QuizPageState extends State<QuizPage> {
                 ),
                 onPressed: () {
                   setState(() {
-                    determineAnswer(true);
-                    setNextQuestion();
+                    quizBrain.determineAnswer(true);
+                    quizBrain.getRandomQuestion();
                   });
                 },
               ),
@@ -126,15 +94,15 @@ class _QuizPageState extends State<QuizPage> {
                 ),
                 onPressed: () {
                   setState(() {
-                    determineAnswer(false);
-                    setNextQuestion();
+                    quizBrain.determineAnswer(false);
+                    quizBrain.getRandomQuestion();
                   });
                 },
               ),
             ),
           ),
           Wrap(
-            children: scoreKeeper,
+            children: quizBrain.scoreKeeper,
           )
         ],
       );
