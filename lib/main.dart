@@ -35,6 +35,7 @@ class QuizPage extends StatefulWidget {
 class _QuizPageState extends State<QuizPage> {
   void checkAnswer(bool answer) {
     setState(() {
+      quizBrain.determineAnswer(answer);
       if (quizBrain.determineEndOfQuiz()) {
         Alert(
           context: context,
@@ -58,8 +59,6 @@ class _QuizPageState extends State<QuizPage> {
             )
           ],
         ).show();
-      } else {
-        quizBrain.determineAnswer(answer);
       }
     });
   }

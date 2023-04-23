@@ -59,11 +59,13 @@ class QuizBrain {
   String getQuestionText() => question!.question;
 
   void _nextQuestion() {
-    _questionNumber++;
-    question = _questionBank[_questionNumber];
+    if (!determineEndOfQuiz()) {
+      _questionNumber++;
+      question = _questionBank[_questionNumber];
+    }
   }
 
-  bool determineEndOfQuiz() => _questionNumber == _questionBank.length;
+  bool determineEndOfQuiz() => _questionNumber + 1 == _questionBank.length;
 
   void resetQuiz() {
     scoreKeeper = [];
@@ -72,15 +74,17 @@ class QuizBrain {
   }
 
   void determineAnswer(bool answer) {
-    bool correctResult = question!.answer == answer;
-    scoreKeeper.add(Score(
-      icon: Icon(
-        correctResult ? Icons.check : Icons.close,
-        color: correctResult ? Colors.green : Colors.red,
-      ),
-      correct: correctResult,
-    ));
-    _nextQuestion();
+    if (!determineEndOfQuiz()) {
+      bool correctResult = question!.answer == answer;
+      scoreKeeper.add(Score(
+        icon: Icon(
+          correctResult ? Icons.check : Icons.close,
+          color: correctResult ? Colors.green : Colors.red,
+        ),
+        correct: correctResult,
+      ));
+      _nextQuestion();
+    }
   }
 
   String determineScore() =>
